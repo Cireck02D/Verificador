@@ -1,0 +1,118 @@
+/* Reset y base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+/* Panel principal */
+.panel {
+  background-color: #2c2f48;
+  border-radius: 15px;
+  padding: 40px;
+  width: 100%;
+  max-width: 750px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+/* Encabezado */
+h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #ffffff;
+}
+
+h1 i {
+  margin-right: 10px;
+  color: #00e0ff;
+}
+
+/* Zona de subida */
+.zona-subida {
+  border: 2px dashed #00e0ff;
+  background-color: rgba(0, 224, 255, 0.05);
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+}
+
+.zona-subida p {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+input[type="file"] {
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+/* Botones */
+button {
+  background: linear-gradient(45deg, #00e0ff, #3a47d5);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(45deg, #3a47d5, #00e0ff);
+}
+
+button i {
+  margin-right: 8px;
+}
+
+/* Video */
+video {
+  border-radius: 10px;
+  border: 2px solid #00e0ff;
+  box-shadow: 0 0 15px rgba(0, 224, 255, 0.5);
+  margin-top: 20px;
+}
+
+/* Resultado */
+#resultado {
+  margin-top: 25px;
+  padding: 15px;
+  font-size: 18px;
+  background-color: #343a40;
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  border-radius: 10px;
+  display: none;
+}
+
+/* Oculto */
+.oculto {
+  display: none;
+}
+
+/* Fade-in animation */
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
