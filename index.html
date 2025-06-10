@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Verificación</title>
+  <link rel="stylesheet" href="css/estilos.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+  <div class="panel">
+    <div id="encabezado" class="fade-in">
+      <h1><i class="fas fa-id-card-alt"></i> Sistema de Verificación</h1>
+    </div>
+
+    <div id="zona-subida" class="zona-subida fade-in">
+      <p><i class="fas fa-cloud-upload-alt"></i> Arrastra o suelta tu documento aquí</p>
+      <input type="file" id="uploadInput" accept="image/*"/>
+      <button id="boton-subir"><i class="fas fa-file-upload"></i> Subir Documento</button>
+    </div>
+
+    <div class="acciones fade-in">
+      <button id="mostrarCamara"><i class="fas fa-camera"></i> Captura</button>
+    </div>
+
+    <div id="camara-contenedor" class="oculto fade-in">
+      <video id="video" width="640" height="480" autoplay></video>
+      <button id="capturar"><i class="fas fa-image"></i> Capturar Imagen</button>
+    </div>
+
+    <div id="resultado" class="fade-in"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+  <script src="js/camara.js"></script>
+</body>
+</html>
