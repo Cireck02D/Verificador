@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Capturar imagen del video
   capturarBtn.addEventListener('click', () => {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
@@ -41,22 +42,24 @@ document.addEventListener('DOMContentLoaded', () => {
     procesarImagen(imageData);
   });
 
+  // Procesar archivo subido
   uploadInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         procesarImagen(e.target.result);
       };
       reader.readAsDataURL(file);
     }
   });
 
-  // Hacer que el botón abra el selector de archivos oculto
+  // Botón para abrir el input de carga de archivo
   botonSubir.addEventListener('click', () => {
     uploadInput.click();
   });
 
+  // Función para procesar la imagen con Tesseract
   function procesarImagen(imageData) {
     resultadoDiv.style.display = 'block';
     resultadoDiv.textContent = 'Procesando imagen...';
@@ -67,11 +70,15 @@ document.addEventListener('DOMContentLoaded', () => {
       { logger: m => console.log(m) }
     ).then(({ data: { text } }) => {
       console.log('Texto extraído:', text);
-      const cedulaRegex = /\b\d{8}\b/g;
-      const cedula = text.match(cedulaRegex);
 
-      if (cedula) {
-        resultadoDiv.textContent = `✅ Cédula profesional encontrada: ${cedula[0]}`;
+      // Buscar todos los números de 7 u 8 dígitos
+      const cedulaRegex = /\b\d{7,8}\b/g;
+      const coincidencias = text.match(cedulaRegex);
+
+      console.log('Cédulas encontradas:', coincidencias);
+
+      if (coincidencias && coincidencias.length > 0) {
+        resultadoDiv.textContent = `✅ La cédula ${coincidencias[0]} se guardó.`;
       } else {
         resultadoDiv.textContent = '⚠️ No se encontró la cédula profesional.';
       }
