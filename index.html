@@ -13,11 +13,12 @@
       <h1><i class="fas fa-id-card-alt"></i> Sistema de Verificación</h1>
     </div>
 
-    <div id="zona-subida" class="zona-subida fade-in">
-      <p><i class="fas fa-cloud-upload-alt"></i> Arrastra o suelta tu documento aquí</p>
-      <input type="file" id="uploadInput" accept="image/*"/>
-      <button id="boton-subir"><i class="fas fa-file-upload"></i> Subir Documento</button>
-    </div>
+  <div id="zona-subida" class="zona-subida fade-in">
+  <p><i class="fas fa-cloud-upload-alt"></i> Arrastra o suelta tu documento aquí</p>
+  <input type="file" id="uploadInput" accept="image/*" style="display: none;" />
+  <button id="boton-subir"><i class="fas fa-file-upload"></i> Subir Documento</button>
+</div>
+
 
     <div class="acciones fade-in">
       <button id="mostrarCamara"><i class="fas fa-camera"></i> Captura</button>
@@ -32,6 +33,34 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
-  <script src="js/camara.js"></script>
+  <!-- Firebase App (Core) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Configuración Firebase (directo en el HTML) -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCBPef2XxHf4dXJ9FZrBgqdbahls7bEdkY",
+    authDomain: "verificador-68675.firebaseapp.com",
+    projectId: "verificador-68675",
+    storageBucket: "verificador-68675.firebasestorage.app",
+    messagingSenderId: "48881291127",
+    appId: "1:48881291127:web:f3d7c67ec1ae412aa55b72"
+  };
+
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+<!-- Tesseract -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+
+<!-- Cámara JS -->
+<script src="js/camara.js"></script>
+
+
 </body>
 </html>
