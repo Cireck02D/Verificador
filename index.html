@@ -4,63 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema de Verificación</title>
+  
+  <!-- Estilos -->
   <link rel="stylesheet" href="css/estilos.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 <body>
   <div class="panel">
+    <!-- Encabezado -->
     <div id="encabezado" class="fade-in">
       <h1><i class="fas fa-id-card-alt"></i> Sistema de Verificación</h1>
     </div>
 
-  <div id="zona-subida" class="zona-subida fade-in">
-  <p><i class="fas fa-cloud-upload-alt"></i> Arrastra o suelta tu documento aquí</p>
-  <input type="file" id="uploadInput" accept="image/*" style="display: none;" />
-  <button id="boton-subir"><i class="fas fa-file-upload"></i> Subir Documento</button>
-</div>
+    <!-- Zona de subida -->
+    <div id="zona-subida" class="zona-subida fade-in">
+      <p><i class="fas fa-cloud-upload-alt"></i> Arrastra o suelta tu documento aquí</p>
+      <input type="file" id="uploadInput" accept="image/*" style="display: none;" />
+      <button id="boton-subir"><i class="fas fa-file-upload"></i> Subir Documento</button>
+    </div>
 
-
-    <div class="acciones fade-in">
+    <!-- Botón para mostrar cámara -->
+    <div class="acciones fade-in" id="acciones">
       <button id="mostrarCamara"><i class="fas fa-camera"></i> Captura</button>
     </div>
 
+    <!-- Contenedor de la cámara -->
     <div id="camara-contenedor" class="oculto fade-in">
-      <video id="video" width="640" height="480" autoplay></video>
-      <button id="capturar"><i class="fas fa-image"></i> Capturar Imagen</button>
+      <video id="video" width="100%" height="auto" autoplay playsinline></video>
+      <div class="camara-botones">
+        <button id="capturar"><i class="fas fa-image"></i> Capturar Imagen</button>
+        <button id="volverCamara"><i class="fas fa-arrow-left"></i> Volver</button>
+      </div>
     </div>
 
-    <div id="resultado" class="fade-in"></div>
+    <!-- Resultado -->
+    <div id="resultado" class="fade-in oculto">
+      <p id="mensajeResultado"></p>
+    </div>
+
+    <!-- Botón para ingresar nueva -->
+    <button id="nuevoRegistro" class="oculto">
+      <i class="fas fa-redo"></i> Ingresar nueva
+    </button>
   </div>
 
+  <!-- Tesseract -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+
   <!-- Firebase App (Core) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- Configuración Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBPef2XxHf4dXJ9FZrBgqdbahls7bEdkY",
+      authDomain: "verificador-68675.firebaseapp.com",
+      projectId: "verificador-68675",
+      storageBucket: "verificador-68675.firebasestorage.app",
+      messagingSenderId: "48881291127",
+      appId: "1:48881291127:web:f3d7c67ec1ae412aa55b72"
+    };
 
-<!-- Configuración Firebase (directo en el HTML) -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCBPef2XxHf4dXJ9FZrBgqdbahls7bEdkY",
-    authDomain: "verificador-68675.firebaseapp.com",
-    projectId: "verificador-68675",
-    storageBucket: "verificador-68675.firebasestorage.app",
-    messagingSenderId: "48881291127",
-    appId: "1:48881291127:web:f3d7c67ec1ae412aa55b72"
-  };
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
 
-  // Inicializar Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-</script>
-
-<!-- Tesseract -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
-
-<!-- Cámara JS -->
-<script src="js/camara.js"></script>
-
-
+  <!-- Tu lógica JS -->
+  <script src="js/camara.js"></script>
 </body>
 </html>
