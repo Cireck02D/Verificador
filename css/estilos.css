@@ -86,6 +86,36 @@ video {
   border: 2px solid #00e0ff;
   box-shadow: 0 0 15px rgba(0, 224, 255, 0.5);
   margin-top: 20px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Botones cámara: lado a lado */
+.camara-botones {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Botones en camara-botones tienen el mismo estilo que button */
+/* (se hereda, si quieres puedes agregar más estilos) */
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .panel {
+    padding: 20px;
+  }
+  .camara-botones {
+    flex-direction: column;
+    gap: 10px;
+  }
+  button {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 0;
+  }
 }
 
 /* Resultado */
@@ -97,12 +127,18 @@ video {
   border: 1px solid #00e0ff;
   color: #00e0ff;
   border-radius: 10px;
-  display: none;
+  
+  display: flex;               /* FLEX para alinear */
+  flex-direction: column;     /* en columna */
+  align-items: center;        /* centrar horizontalmente */
+  gap: 12px;                  /* espacio entre mensaje y botón */
+  
+  
 }
 
 /* Oculto */
 .oculto {
-  display: none;
+  display: none !important;
 }
 
 /* Fade-in animation */
@@ -115,4 +151,10 @@ video {
   to {
     opacity: 1;
   }
+}
+
+/* Botón para nuevo registro */
+#nuevoRegistro {
+  margin-top: 20px;          /* ya con gap está separado */
+  display: inline-block;  /* botón en línea */
 }
