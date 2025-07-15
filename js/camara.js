@@ -15,50 +15,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const campoNombre = document.getElementById('campoNombre');
   const campoCedula = document.getElementById('campoCedula');
   const guardarBtn = document.getElementById('guardarBtn');
+  const compartirBtn = document.getElementById('compartirBtn');
 
   let streamGlobal = null;
 
-  // ✅ Función para dividir el nombre
-function dividirNombre(nombreCompleto) {
-  const partes = nombreCompleto.trim().split(/\s+/);
-  
-  if (partes.length === 2) {
-    // Solo nombre y un apellido
-    return {
-      nombres: partes[0],
-      apellido1: partes[1],
-      apellido2: ""
-    };
-  } else if (partes.length === 3) {
-    // Nombre, apellido paterno, apellido materno
-    return {
-      nombres: partes[0],
-      apellido1: partes[1],
-      apellido2: partes[2]
-    };
-  } else if (partes.length >= 4) {
-    // Dos nombres + dos apellidos
-    return {
-      nombres: partes.slice(0, partes.length - 2).join(" "),
-      apellido1: partes[partes.length - 2],
-      apellido2: partes[partes.length - 1]
-    };
-  } else {
-    // Fallback por si algo sale mal
-    return {
-      nombres: "",
-      apellido1: "",
-      apellido2: ""
-    };
+  function dividirNombre(nombreCompleto) {
+    const partes = nombreCompleto.trim().split(/\s+/);
+    if (partes.length === 2) {
+      return { nombres: partes[0], apellido1: partes[1], apellido2: "" };
+    } else if (partes.length === 3) {
+      return { nombres: partes[0], apellido1: partes[1], apellido2: partes[2] };
+    } else if (partes.length >= 4) {
+      return {
+        nombres: partes.slice(0, partes.length - 2).join(" "),
+        apellido1: partes[partes.length - 2],
+        apellido2: partes[partes.length - 1]
+      };
+    } else {
+      return { nombres: "", apellido1: "", apellido2: "" };
+    }
   }
-}
-
 
   mostrarCamaraBtn.addEventListener('click', () => {
     zonaSubida.classList.add('oculto');
     accionesDiv.classList.add('oculto');
     resultadoDiv.classList.add('oculto');
     nuevoRegistroBtn.classList.add('oculto');
+    compartirBtn.classList.add('oculto');
     camaraContenedor.classList.remove('oculto');
 
     if (!video.srcObject) {
@@ -106,12 +89,12 @@ function dividirNombre(nombreCompleto) {
       streamGlobal = null;
     }
     video.srcObject = null;
-
     camaraContenedor.classList.add('oculto');
     zonaSubida.classList.remove('oculto');
     accionesDiv.classList.remove('oculto');
     resultadoDiv.classList.add('oculto');
     nuevoRegistroBtn.classList.add('oculto');
+    compartirBtn.classList.add('oculto');
     mensajeResultado.textContent = '';
     uploadInput.value = '';
     datosTabla.classList.add('oculto');
@@ -136,12 +119,12 @@ function dividirNombre(nombreCompleto) {
     camaraContenedor.classList.add('oculto');
     resultadoDiv.classList.add('oculto');
     nuevoRegistroBtn.classList.add('oculto');
+    compartirBtn.classList.add('oculto');
     mensajeResultado.textContent = '';
     uploadInput.value = '';
     datosTabla.classList.add('oculto');
   });
 
-  // ✅ Bloque corregido para guardar y verificar cédula
   guardarBtn.addEventListener('click', async () => {
     const nombreFinal = campoNombre.innerText.trim();
     const cedulaFinal = campoCedula.innerText.trim();
@@ -181,10 +164,12 @@ function dividirNombre(nombreCompleto) {
       });
 
       nuevoRegistroBtn.classList.remove('oculto');
+      compartirBtn.classList.remove('oculto');
       datosTabla.classList.add('oculto');
     } catch (error) {
       mensajeResultado.textContent = "❌ Error durante la verificación: " + error.message;
       nuevoRegistroBtn.classList.remove('oculto');
+      compartirBtn.classList.remove('oculto');
       datosTabla.classList.add('oculto');
     }
   });
@@ -193,6 +178,7 @@ function dividirNombre(nombreCompleto) {
     resultadoDiv.classList.remove('oculto');
     mensajeResultado.textContent = msg;
     nuevoRegistroBtn.classList.remove('oculto');
+    compartirBtn.classList.add('oculto');
     zonaSubida.classList.add('oculto');
     accionesDiv.classList.add('oculto');
     camaraContenedor.classList.add('oculto');
@@ -208,7 +194,7 @@ function dividirNombre(nombreCompleto) {
       const limpia = linea.replace(/[^\wÁÉÍÓÚÑáéíóúñ\s.:]/g, '').trim();
 
       if (!nombre && /(DRA\.|DR\.|M[ÉE]DICO)/i.test(limpia)) {
-        const nombreMatch = limpia.match(/(?:DRA\.|DR\.|M[ÉE]DICO(?:\s+CIRUJANO)?(?:\s+Y\s+PARTERO)?)[\s.:\-]*([A-ZÁÉÍÓÚÑ\s]{5,})(?:[^A-ZÁÉÍÓÚÑ\s]|$)/i);
+        const nombreMatch = limpia.match(/(?:DRA\.|DR\.|M[ÉE]DICO(?:\s+CIRUJANO)?(?:\s+Y\s+PARTERO)?)[\s.:\-]*([A-ZÁÉÍÓÚÑ\s]{5,})/i);
         if (nombreMatch && nombreMatch[1]) {
           const posibleNombre = nombreMatch[1]
             .replace(/\s+/g, ' ')
@@ -233,6 +219,7 @@ function dividirNombre(nombreCompleto) {
   }
 
   async function procesarImagen(imageData) {
+    compartirBtn.classList.add('oculto'); // ⛔ Ocultar siempre antes del procesamiento
     resultadoDiv.classList.remove('oculto');
     mensajeResultado.textContent = 'Procesando imagen...';
     nuevoRegistroBtn.classList.add('oculto');
