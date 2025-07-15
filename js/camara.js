@@ -11,8 +11,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const botonSubir = document.getElementById('boton-subir');
   const nuevoRegistroBtn = document.getElementById('nuevoRegistro');
   const accionesDiv = document.getElementById('acciones');
+  const datosTabla = document.getElementById('datosTabla');
+  const campoNombre = document.getElementById('campoNombre');
+  const campoCedula = document.getElementById('campoCedula');
+  const guardarBtn = document.getElementById('guardarBtn');
 
-  let streamGlobal = null; // Para detener cámara al volver
+  let streamGlobal = null;
+
+  // ✅ Función para dividir el nombre
+function dividirNombre(nombreCompleto) {
+  const partes = nombreCompleto.trim().split(/\s+/);
+  
+  if (partes.length === 2) {
+    // Solo nombre y un apellido
+    return {
+      nombres: partes[0],
+      apellido1: partes[1],
+      apellido2: ""
+    };
+  } else if (partes.length === 3) {
+    // Nombre, apellido paterno, apellido materno
+    return {
+      nombres: partes[0],
+      apellido1: partes[1],
+      apellido2: partes[2]
+    };
+  } else if (partes.length >= 4) {
+    // Dos nombres + dos apellidos
+    return {
+      nombres: partes.slice(0, partes.length - 2).join(" "),
+      apellido1: partes[partes.length - 2],
+      apellido2: partes[partes.length - 1]
+    };
+  } else {
+    // Fallback por si algo sale mal
+    return {
+      nombres: "",
+      apellido1: "",
+      apellido2: ""
+    };
+  }
+}
+
 
   mostrarCamaraBtn.addEventListener('click', () => {
     zonaSubida.classList.add('oculto');
@@ -22,21 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
     camaraContenedor.classList.remove('oculto');
 
     if (!video.srcObject) {
-      // Intentar abrir cámara trasera
       navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
-        .then((stream) => {
+        .then(stream => {
           streamGlobal = stream;
           video.srcObject = stream;
         })
         .catch(() => {
-          // Si no funciona, abrir cámara frontal como fallback
           navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
+            .then(stream => {
               streamGlobal = stream;
               video.srcObject = stream;
             })
-            .catch((err) => {
-              console.error('Error al acceder a la cámara: ', err);
+            .catch(() => {
               mostrarResultadoError('No se pudo acceder a la cámara.');
             });
         });
@@ -47,15 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const imageData = canvas.toDataURL('image/png');
-    procesarImagen(imageData);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      const val = avg > 150 ? 255 : 0;
+      data[i] = data[i + 1] = data[i + 2] = val;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    const processedImage = canvas.toDataURL('image/png');
+    procesarImagen(processedImage);
   });
 
   volverCamaraBtn.addEventListener('click', () => {
-    // Detener cámara si está activa
     if (streamGlobal) {
       streamGlobal.getTracks().forEach(track => track.stop());
       streamGlobal = null;
@@ -69,19 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
     nuevoRegistroBtn.classList.add('oculto');
     mensajeResultado.textContent = '';
     uploadInput.value = '';
+    datosTabla.classList.add('oculto');
   });
 
   botonSubir.addEventListener('click', () => {
     uploadInput.click();
   });
 
-  uploadInput.addEventListener('change', (event) => {
+  uploadInput.addEventListener('change', event => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function (e) {
-        procesarImagen(e.target.result);
-      };
+      reader.onload = e => procesarImagen(e.target.result);
       reader.readAsDataURL(file);
     }
   });
@@ -94,15 +138,98 @@ document.addEventListener('DOMContentLoaded', () => {
     nuevoRegistroBtn.classList.add('oculto');
     mensajeResultado.textContent = '';
     uploadInput.value = '';
+    datosTabla.classList.add('oculto');
   });
 
-  function mostrarResultadoError(mensaje) {
+  // ✅ Bloque corregido para guardar y verificar cédula
+  guardarBtn.addEventListener('click', async () => {
+    const nombreFinal = campoNombre.innerText.trim();
+    const cedulaFinal = campoCedula.innerText.trim();
+
+    if (!nombreFinal || !cedulaFinal) {
+      alert("⚠️ Ambos campos deben estar completos.");
+      return;
+    }
+
+    try {
+      const docRef = await db.collection("cedulas").add({
+        nombre: nombreFinal,
+        cedula: cedulaFinal,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      mensajeResultado.textContent = '⌛ Verificando cédula...';
+
+      const partes = dividirNombre(nombreFinal);
+
+      const resultado = await verificarCedulaDesdeServidor(
+        cedulaFinal,
+        partes.nombres,
+        partes.apellido1,
+        partes.apellido2
+      );
+
+      if (resultado.estado === "aprobada") {
+        mensajeResultado.textContent = "✅ Receta verificada.";
+      } else {
+        mensajeResultado.textContent = "⚠️ Receta sospechosa.";
+      }
+
+      await db.collection("cedulas").doc(docRef.id).update({
+        resultado: resultado.estado,
+        folio: resultado.folio
+      });
+
+      nuevoRegistroBtn.classList.remove('oculto');
+      datosTabla.classList.add('oculto');
+    } catch (error) {
+      mensajeResultado.textContent = "❌ Error durante la verificación: " + error.message;
+      nuevoRegistroBtn.classList.remove('oculto');
+      datosTabla.classList.add('oculto');
+    }
+  });
+
+  function mostrarResultadoError(msg) {
     resultadoDiv.classList.remove('oculto');
-    mensajeResultado.textContent = mensaje;
+    mensajeResultado.textContent = msg;
     nuevoRegistroBtn.classList.remove('oculto');
     zonaSubida.classList.add('oculto');
     accionesDiv.classList.add('oculto');
     camaraContenedor.classList.add('oculto');
+    datosTabla.classList.add('oculto');
+  }
+
+  function extraerDatos(texto) {
+    const lineas = texto.split('\n').map(l => l.trim()).filter(Boolean);
+    let nombre = null;
+    let cedula = null;
+
+    for (let linea of lineas) {
+      const limpia = linea.replace(/[^\wÁÉÍÓÚÑáéíóúñ\s.:]/g, '').trim();
+
+      if (!nombre && /(DRA\.|DR\.|M[ÉE]DICO)/i.test(limpia)) {
+        const nombreMatch = limpia.match(/(?:DRA\.|DR\.|M[ÉE]DICO(?:\s+CIRUJANO)?(?:\s+Y\s+PARTERO)?)[\s.:\-]*([A-ZÁÉÍÓÚÑ\s]{5,})(?:[^A-ZÁÉÍÓÚÑ\s]|$)/i);
+        if (nombreMatch && nombreMatch[1]) {
+          const posibleNombre = nombreMatch[1]
+            .replace(/\s+/g, ' ')
+            .replace(/\s+[a-z]{1}$/i, '')
+            .replace(/[^A-ZÁÉÍÓÚÑ\s]/gi, '')
+            .trim();
+          if (posibleNombre.split(/\s+/).length >= 2) {
+            nombre = posibleNombre;
+          }
+        }
+      }
+
+      if (!cedula) {
+        const cedulaMatch = limpia.match(/(?:C[ÉE]D(?:\.|ULA)?\s*PROF(?:\.|ESIONAL)?\.?:?\s*|CED\.?\s*PROF\.?\s*)(\d{7,8})/i);
+        if (cedulaMatch) {
+          cedula = cedulaMatch[1];
+        }
+      }
+    }
+
+    return { nombre, cedula };
   }
 
   async function procesarImagen(imageData) {
@@ -112,47 +239,31 @@ document.addEventListener('DOMContentLoaded', () => {
     zonaSubida.classList.add('oculto');
     accionesDiv.classList.add('oculto');
     camaraContenedor.classList.add('oculto');
+    datosTabla.classList.add('oculto');
 
-    // Detener cámara si está activa (por si vino de captura)
     if (streamGlobal) {
-      streamGlobal.getTracks().forEach(track => track.stop());
+      streamGlobal.getTracks().forEach(t => t.stop());
       streamGlobal = null;
     }
     video.srcObject = null;
 
-    Tesseract.recognize(
-      imageData,
-      'spa',
-      { logger: m => console.log(m) }
-    ).then(async ({ data: { text } }) => {
-      console.log('Texto extraído:', text);
+    try {
+      const { data: { text } } = await Tesseract.recognize(imageData, 'spa', { logger: () => {} });
+      const { nombre, cedula } = extraerDatos(text);
 
-      const cedulaRegex = /\b\d{7,8}\b/g;
-      const coincidencias = text.match(cedulaRegex);
-
-      if (coincidencias && coincidencias.length > 0) {
-        const cedula = coincidencias[0];
-        mensajeResultado.textContent = `✅ La cédula ${cedula} se guardó.`;
-
-        try {
-          await db.collection("cedulas").add({
-            cedula: cedula,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          console.log("Cédula guardada en Firestore");
-        } catch (error) {
-          console.error("Error al guardar en Firestore:", error);
-          mensajeResultado.textContent = '❌ Error al guardar la cédula.';
-        }
-
-        nuevoRegistroBtn.classList.remove('oculto');
+      if (nombre || cedula) {
+        campoNombre.innerText = nombre || '';
+        campoCedula.innerText = cedula || '';
+        datosTabla.classList.remove('oculto');
+        mensajeResultado.textContent = '📝 Verifica y guarda los datos extraídos.';
       } else {
-        mensajeResultado.textContent = '⚠️ No se encontró la cédula profesional.';
-        nuevoRegistroBtn.classList.remove('oculto');
+        mensajeResultado.textContent = '⚠️ No se detectó nombre o cédula válidos.';
       }
-    }).catch((err) => {
-      console.error('Error al procesar la imagen: ', err);
-      mostrarResultadoError('❌ Error al procesar la imagen.');
-    });
+
+      nuevoRegistroBtn.classList.remove('oculto');
+    } catch {
+      mensajeResultado.textContent = '❌ Error al procesar la imagen.';
+      nuevoRegistroBtn.classList.remove('oculto');
+    }
   }
 });
