@@ -42,6 +42,19 @@
       <p id="mensajeResultado"></p>
     </div>
 
+    <!-- Tabla de verificación -->
+    <div id="datosTabla" class="oculto fade-in">
+      <h3>Verifica los datos extraídos</h3>
+      <table>
+        <tr><th>Campo</th>         
+        <tr><td>Nombre: </td>     <td contenteditable="true" id="campoNombre"></td></tr>
+        <tr><td>Cédula: </td>     <td contenteditable="true" id="campoCedula"></td></tr>
+      </table>
+      <button id="guardarBtn"><i class="fas fa-save"></i> Guardar datos</button>
+      
+
+    </div>
+
     <!-- Botón para ingresar nueva -->
     <button id="nuevoRegistro" class="oculto">
       <i class="fas fa-redo"></i> Ingresar nueva
@@ -67,12 +80,13 @@
       appId: "1:48881291127:web:f3d7c67ec1ae412aa55b72"
     };
 
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
 
-  <!-- Tu lógica JS -->
+  <!-- Lógica principal -->
   <script src="js/camara.js"></script>
+  <script src="js/verificador.js"></script>
+
 </body>
 </html>
